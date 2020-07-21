@@ -274,15 +274,126 @@ int main(int argc,char** argv){
 }
 ```
 
+### 2.6 矩阵
+
+一个完整的matrix类
+```c++
+template <typename Object>
+class matrix{
+private: vector<vector<Object>> array;
+public:
+    matrix(int rows, int cols):array(rows){
+        for(auto & thisRow: array)
+            thisRow.resize(cols);
+    }
+
+    matrix(vector<vector<Object>> v) :array{v}{
+
+    }
+    matrix(vector<vector<Object>> && v): array{std::move(v)}{   //移动构造函数
+
+    }
+
+    const vector<Object> & operator[] (int row) const{  //常成员函数，
+        return array[row];
+    }
+    vector<Object> & operator[] (int row){
+        return array[row];
+    }
+
+    int numrows() const {
+        return array.size();
+    }
+    int numcols() const {
+        return numrows() ? array[0].size():0;
+    }
+};
+```
+## 3 算法分析
+### 3.1 一般法则
+![](picture/2020-07-21-13-24-35.png)
+
+![](picture/2020-07-21-13-27-23.png)
+
+![](picture/2020-07-21-13-27-42.png)
+
+### 3.2 最大相连子序列和问题
+```c++
+/*
+ * 最大相连子序列和的立方级算法*/
+int maxSubSml(const vector<int>& a){
+    int maxSum=0;
+
+    for(int i=0;i<a.size();++i)
+        for(int j=i;j<a.size();++j)
+        {
+            int thisSum=0;
+
+            for(int k=i;k<=j;++k)
+                thisSum += a[k];
+
+            if(thisSum > maxSum)
+                maxSum = thisSum;
+        }
+    return maxSum;
+}
+//TIme: 0.002994s
+```
+
+```c++
+/*
+ * 平方级算法*/
+int maxSubSml2(const vector<int> &a){
+    int maxSum = 0;
+
+    for(int i=0;i<a.size();++i) {
+        int thisSum = 0;
+        for (int j = i; j < a.size(); ++j) {
+            thisSum += a[j];
+            if (thisSum > maxSum)
+                maxSum = thisSum;
+        }
+    }
+    return maxSum;
+}
+//TIme: 0.000127s
+```
+
+![](picture/2020-07-21-13-54-30.png)
 
 
+```c++
+/*相连最大子序列的递归算法
+ * 找出生成[left...right]的子数组中最大和。
+ * 不试图保留具体的最佳序列
+ * 复杂度： O(NlogN)*/
+int maxSumRec(const vector<int> & a, int left, int right){
+    if(left==right)  // 基准情况
+    {
+        return a[left];
+    }
+    int center = (left+right)/2;
+    int maxLeftSum = maxSumRec(a,left,center);
+    int maxRightSum = maxSumRec(a,center+1,right);
 
+    int maxLeftBorderSum=0,leftBorderSum=0;
+    for(int i=center;i>=left;--i){
+        leftBorderSum += a[i];
+        if(maxLeftBorderSum<leftBorderSum)
+            maxLeftBorderSum = leftBorderSum;
+    }
 
+    int maxRightBorderSum=0,rightBorderSum=0;
+    for(int j=center;j<=right;++j){
+        rightBorderSum=a[j];
+        if(maxRightBorderSum<rightBorderSum)
+            maxRightBorderSum = rightBorderSum;
+    }
 
-
-
-
-
-
+    return max3(maxLeftSum,maxRightSum,maxLeftBorderSum+maxLeftBorderSum);
+}
+//Time: 3.5e-05s
+```
+![](picture/2020-07-21-15-27-35.png)
 
 
