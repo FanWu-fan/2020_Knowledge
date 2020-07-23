@@ -392,8 +392,75 @@ int maxSumRec(const vector<int> & a, int left, int right){
 
     return max3(maxLeftSum,maxRightSum,maxLeftBorderSum+maxLeftBorderSum);
 }
+
+
+int main(int argc,char** argv){
+    clock_t startTime,endTime;
+    startTime = clock();
+    vector<int> arr{1,4,-3,5,6,-5,6,7,-9,10,1,4,-3,5,6,-5,6,7,-9,10,1,4,-3,5,6,-5,6,7,-9,10,1,4,-3,5,6,-5,6,7,-9,10,
+                    1,4,-3,5,6,-5,6,7,-9,10,1,4,-3,5,6,-5,6,7,-9,10,1,4,-3,5,6,-5,6,7,-9,10,1,4,-3,5,6,-5,6,7,-9,10,
+                    1,4,-3,5,6,-5,6,7,-9,10,1,4,-3,5,6,-5,6,7,-9,10,1,4,-3,5,6,-5,6,7,-9,10,1,4,-3,5,6,-5,6,7,-9,10,
+                    1,4,-3,5,6,-5,6,7,-9,10,1,4,-3,5,6,-5,6,7,-9,10,1,4,-3,5,6,-5,6,7,-9,10,1,4,-3,5,6,-5,6,7,-9,10};
+    cout<< maxSumRec(arr,0,arr.size()-1)<<endl;
+    //cout<< maxSubSml2(arr)<<endl;
+
+    endTime=clock();
+    cout << "The run time is: " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+}
+
+
 //Time: 3.5e-05s
 ```
 ![](picture/2020-07-21-15-27-35.png)
+
+
+### 3.3 折半查找
+```c++
+/*每次循环使用两次比较以执行标准的折半查找。
+ * 找到时返回所求项的下标，找不到则返回 -1 */
+template <typename Comparable>
+int binarySearch(const vector<Comparable> & a, const Comparable &x){
+   int low=0,high = a.size()-1;
+   while (low<=high) {
+       int mid = (low + high) / 2;
+       if (a[mid] < x)
+           low = mid + 1;
+       else if (a[mid] > x)
+           high = mid - 1;
+       else
+           return mid;
+   }
+   return NOT_FOUND;
+}
+```
+
+```c++
+/*欧几里得算法
+ * 求两个整数的最大公因数，如 gcd(50,15)=5*/
+long long gcd(long long m,long long n){
+    while(n!=0){
+        long long rem = m%n;
+        m=n;
+        n=rem;
+    }
+    return m;
+}
+ 
+```
+## 4 表、栈和队列
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
