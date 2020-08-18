@@ -1,4 +1,5 @@
 # 1. c++面向对象高级开发
+## 1.1 complex
 ```c++
 main.cpp
 #include <iostream>
@@ -72,4 +73,86 @@ operator << (ostream& os,const complex &x){
 
 ```
 
+## 1.2 string
+```cpp
+//
+// Created by wf on 2020/8/18 0018.
+//
 
+#ifndef TESTCPP_STRING_H
+#define TESTCPP_STRING_H
+#include <iostream>
+#include <string.h>
+
+
+class String {
+public:
+    explicit String(const char* cstr=nullptr);
+    String(const String& str);  //拷贝构造函数
+    String& operator=(const String& str);   //拷贝赋值
+    ~String();
+//    char* get_c_str() const {return m_data;}
+
+private:
+    char* m_data;
+};
+
+inline
+String::String(const char *cstr) {
+    if (cstr){
+        m_data = new char [strlen(cstr) + 1];
+        strcpy(m_data,cstr);
+    }
+    else{
+        m_data = new char [1];
+        *m_data = '\0';
+    }
+}
+
+String::~String() {
+    std::cout<<*m_data<<"析构了"<<std::endl;
+    delete [] m_data;
+}
+
+inline
+String::String(const String &str) {
+    m_data = new char [strlen(str.m_data) + 1];
+    strcpy(m_data,str.m_data);
+}
+
+String &String::operator=(const String &str) {
+    if (this == &str)
+        return *this;
+    delete [] m_data;
+    m_data = new char [strlen(str.m_data) +1];
+    strcpy(m_data,str.m_data);
+    return *this;
+}
+#endif //TESTCPP_STRING_H
+
+
+```
+
+```
+
+#include <iostream>
+#include "String.h"
+
+using std::cout;
+using std::endl;
+
+int main(int argc,char** argv) {
+    String s1();
+    String s2("w");
+
+    String *p = new String("x");
+    delete p;
+
+
+//    String s3(s1);
+//    cout<<s3<<endl;
+//    s3=s2;
+//    cout<<s3<<endl;
+
+}
+```
