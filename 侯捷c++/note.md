@@ -148,6 +148,9 @@ int main(int argc,char** argv) {
     String *p = new String("x");
     delete p;
 
+    String *p = new String[3];
+    delete p[]; //这里注意要用 p[]，这样才能调用多次析构函数，去析构动态内存区域
+
 
 //    String s3(s1);
 //    cout<<s3<<endl;
