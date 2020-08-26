@@ -402,7 +402,35 @@ int main(int argc,char** argv) {
 2. 原型管理类其中管理需要克隆的类，直接克隆初始化好的实例的数据变量值，不再需要去或系统调用或读取来初始化数据。
 3. 客户直接使用原型管理类获取实例，不再需要手动实例化它们。
 
+## 1.5 
+### conversion function
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
 
+class Fraction
+{
+public:
+    Fraction(int num,int den=1):m_numerator(num),m_denominator(den){}
+    operator double () const{ //如果这里用了 explicit 那么不能运行 d=4+f，无法隐式转化过去
+//        return (double)(m_numerator) / (double) m_denominator;
+        return (double )(m_numerator/m_denominator);
+    }
+
+private:
+    int m_numerator;
+    int m_denominator;
+};
+
+
+int main(int argc,char** argv) {
+    Fraction f(3,5);
+    double d=4+f;
+    cout<<d<<endl;
+
+}
+```
 
 
 
