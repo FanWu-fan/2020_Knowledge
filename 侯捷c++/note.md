@@ -402,8 +402,7 @@ int main(int argc,char** argv) {
 2. 原型管理类其中管理需要克隆的类，直接克隆初始化好的实例的数据变量值，不再需要去或系统调用或读取来初始化数据。
 3. 客户直接使用原型管理类获取实例，不再需要手动实例化它们。
 
-## 1.5 
-### conversion function
+## 1.5 conversion function
 ```cpp
 #include <iostream>
 #include <vector>
@@ -431,6 +430,232 @@ int main(int argc,char** argv) {
 
 }
 ```
+
+
+## 1.6  non-explicit one argument constructor
+
+```cpp
+这里如果   operator double () const 和 Fraction operator+ 会产生歧义的错误，ambiguous overload for ‘operator+’ 。系统不知道是 都转为分数计算，还是都为浮点数计算。
+#include <iostream>
+#include <vector>
+using namespace std;
+
+class Fraction
+{
+public:
+    Fraction(int num,int den=1):m_numerator(num),m_denominator(den){}
+    operator double () const{ //如果这里用了 explicit 那么不能运行 d=4+f，无法隐式转化过去
+//        return (double)(m_numerator) / (double) m_denominator;
+        return (double )(m_numerator/m_denominator);
+    }
+
+    Fraction operator+(const Fraction& m){
+        return Fraction(this->m_numerator+m.m_numerator,this->m_denominator);
+    }
+
+    /*
+    ostream&
+    operator << (ostream& os){
+        return os<<"分子： "<<this->m_numerator<<"分母: "<<this->m_denominator<<endl;
+    } //如果写在里面，由于this指针的问题，会写成 d2<<cout;
+    */
+
+    int get_numerator () const {return m_numerator;}
+    int get_denominartor() const {return m_denominator;}
+
+private:
+    int m_numerator;
+    int m_denominator;
+};
+
+inline ostream&
+operator << (ostream &os, const Fraction &x){
+    return os<<"分子： "<<x.get_numerator()<<" 分母: "<<x.get_denominartor()<<endl;
+}
+
+
+int main(int argc,char** argv) {
+    Fraction f(3,5);
+
+
+    int x=4;
+    Fraction d2=f+x;
+    cout<<d2<<endl;
+
+
+}
+```
+
+```cpp
+
+明确的调用 explict，那么这个只为构造函数，并不会隐式的将 分数转为浮点数，或将整数转为分数。
+#include <iostream>
+#include <vector>
+using namespace std;
+
+class Fraction
+{
+public:
+    explicit Fraction(int num,int den=1):m_numerator(num),m_denominator(den){}
+    operator double () const{ //如果这里用了 explicit 那么不能运行 d=4+f，无法隐式转化过去
+//        return (double)(m_numerator) / (double) m_denominator;
+        return (double )(m_numerator/m_denominator);
+    }
+
+    Fraction operator+(const Fraction& m){
+        return Fraction(this->m_numerator+m.m_numerator,this->m_denominator);
+    }
+
+    /*
+    ostream&
+    operator << (ostream& os){
+        return os<<"分子： "<<this->m_numerator<<"分母: "<<this->m_denominator<<endl;
+    } //如果写在里面，由于this指针的问题，会写成 d2<<cout;
+    */
+
+    int get_numerator () const {return m_numerator;}
+    int get_denominartor() const {return m_denominator;}
+
+private:
+    int m_numerator;
+    int m_denominator;
+};
+
+inline ostream&
+operator << (ostream &os, const Fraction &x){
+    return os<<"分子： "<<x.get_numerator()<<" 分母: "<<x.get_denominartor()<<endl;
+}
+
+
+int main(int argc,char** argv) {
+    Fraction f(3,5);
+    double s = double(f)+0.3;
+    cout<<s<<endl;
+
+    int x=4;
+    Fraction d2=f+fraction(x);
+    cout<<d2<<endl;
+
+
+}
+```
+
+## 1.7 pointer-like class 智能指针
+
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+struct Foo
+{
+    void method(void){  }
+};
+
+template <class T>
+class shared_ptr{
+public:
+    T & operator*() const{
+        return *px;
+    }
+
+    T* operator->() const{
+        return px;
+    }
+
+    shared_ptr(T *p): px(p){}   //构造函数，传入的参数是一个，类型为T的p指针。
+
+private:
+    T* px;
+    long* pn;
+};
+
+int main(int argc,char** argv) {
+
+shared_ptr<Foo> sp(new Foo); //指定类型为 Foo, 指针 *p = new Foo, 并且将 p利用初始化列表赋值给 px,
+//意味着 sp 类型为 shared_ptr, 里面有属性 px 指针
+
+Foo f(*sp); // *sp 返回的是 *px 即 *p = new Foo.
+
+sp->method();   //由于 ->具有无限调用的属性， 第一步：px->method() 
+}
+```
+
+### 迭代器
+```cpp
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+template <class T>
+struct __list_node{
+    void * prev;
+    void* next;
+    T data;
+};
+
+//链表
+template <class T,class Ref, class Ptr>
+struct __list_iterator{
+    typedef __list_iterator<T,Ref,Ptr> self;
+    typedef Ptr pointer;
+    typedef Ref reference;
+    typedef __list_node<T>* link_type;
+    link_type node;
+    bool operator==(const self&x) const{return node==x.node;}
+    bool operator!=(const self&x) const{return node != x.node;}
+    reference operator*() const {return (*node).data;}
+    pointer operator->() const {return &(operator*());}
+    self& operator++() {node= (link_type)((*node).next); return *this;}
+    self operator++(int) {self tmp=*this;++*this;return tmp;}
+    self& operator--()  {node = (link_type)((*node).prev);return *this; }
+    self operator--(int)    {self tmp=*this;--*this; return tmp;}
+
+};
+
+struct Foo
+{
+    void method(void){  cout<<"Foo call 'method' "<<endl;}
+};
+
+typedef __list_iterator<Foo,Foo,Foo*> list;
+
+int main(int argc,char** argv) {
+    list it;
+    it->method();
+}
+
+```
+
+
+## 1.8 function-like classes , 仿函数
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
