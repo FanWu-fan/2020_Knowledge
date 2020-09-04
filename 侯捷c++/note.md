@@ -630,16 +630,175 @@ int main(int argc,char** argv) {
 
 
 ## 1.8 函数模板
+```cpp
+#include <iostream>
+#include <vector>
+using std::cout,std::endl;
+
+template <class T>
+inline
+const T& min(const T& a,const T& b)
+{
+    return b<a? b:a;
+}
 
 
+class stone{
+public:
+    stone()=default;
+    stone(int w,int h,int we=0):_w(w),_h(h),_weight(we){}
+    bool operator< (const stone& rhs) const
+    {return _weight<rhs._weight;}
+
+private:
+    int _w,_h,_weight;
+};
+
+int main(int argc,char** argv) {
+    stone r1(2,3),r2(3,3),r3;
+    r3 = min(r1,r2);
+    return 0;
+}
+```
 
 
+## 1.9 模板特化
+```cpp
+#include <iostream>
+#include <vector>
+using std::cout,std::endl;
+
+//泛化
+template <class Key>
+struct hash{};
+
+//特化
+template <>
+struct hash<char>{
+    size_t operator()(char x) const {return x;}
+};
+
+template <>
+struct hash<int>{
+    size_t operator()(int x) const {return x;}
+};
+
+template <>
+struct hash<long>{
+    size_t operator()(long x) const {return x;}
+};
+
+int main(int argc,char** argv) {
+    cout<< hash<long>()(1000);
+}
+```
+## 2.0 C++11
+### 2.0.1 variadic templates (since C++11) 数量不定的模板参数
+```cpp
+#include <iostream>
+#include <vector>
+#include <bitset>
+using std::bitset;
+using std::cout,std::endl;
+
+void print()
+{}  //最后变成0个参数输入的时候，调用这个 无参函数 print(),
+
+// 数量不定的模板参数，
+template <typename T,typename... Types>
+void print(const T& firstArg, const Types&... args)
+{
+    cout<<firstArg<<endl;
+    cout<<sizeof...(args)<<endl;    //输出 args的 pack个数
+    print(args...); //使用 递归的形式，输出 firstArg.
+}
 
 
+int main(int argc,char** argv) {
+
+    print(7.5,"hello",bitset<16>(377),42);
+//    7.5
+//    hello
+//    0000000101111001
+//    42
 
 
+//    7.5
+//    3
+//    hello
+//    2
+//    0000000101111001
+//    1
+//    42
+//    0
+}
+```
+
+### 2.0.2 auto
+![](picture/2020-09-04-15-03-54.png)
+
+### 2.0.3 ranged-base for
+![](picture/2020-09-04-15-08-20.png)
+
+## 2.1  Reference
+![](picture/2020-09-04-15-16-50.png)
+
+```cpp
+int main(int argc,char** argv) {
+    int x=1;
+    int* p = &x;    // p指针存放的是 x的地址，
+    cout<<sizeof(p)<<endl;  //8个字节，64位的电脑
+    cout<<*p<<endl; // 1
+    int & r = x;    // r代表x, r is reference to x
+    int x2=5;
+
+    r=x2;
+    cout<<r<<" "<<x<<endl; // 5  5
+    int& r2 = r;    //现在 r2是5，r2 代表 r以及x
+    r2 = 10;
+    cout<<r<<r2<<x<<endl;   //10 10 10
+
+}
+```
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <bitset>
+using std::bitset;
+using std::cout,std::endl;
+
+typedef struct Stag {int a,b,c,d;} S;
+int main(int argc,char** argv) {
+    double x=0;
+    double *p = &x;
+    double & r = x;
+
+    cout<<sizeof(x)<<endl;  //8
+    cout<<sizeof(p)<<endl;  //8
+    cout<<sizeof(r)<<endl;  //8 这个是假象，实际上给r是一个指针，占据了 8个
+    cout<<p<<endl;  // 0x7ffee7cf3550
+    cout<<*p<<endl; // 0
+    cout<<x<<endl;  // 0
+    cout<<r<<endl;  // 0
+    cout<<&x<<endl; //  0x7ffee7cf3550
+    cout<<&r<<endl; //  0x7ffee7cf3550
+
+    int x2=2;
+    int & r2 = x2;
+    cout<<sizeof(r2)<<endl; //4 这个是假象，实际上给r是一个指针，占据了 8个
 
 
+    S s;
+    S& rs = s;
+    cout<< sizeof(s)<<endl; //16
+    cout<< sizeof(rs)<<endl;    //16
+    cout<< &s<<endl;    //0x7ffeb9ee7a60
+    cout<< &rs <<endl;  //0x7ffeb9ee7a60
+}
+```
+
+## 2.2 vptr vtbl 虚表和虚指针
 
 
 
