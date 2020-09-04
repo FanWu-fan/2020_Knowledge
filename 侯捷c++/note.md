@@ -629,7 +629,7 @@ int main(int argc,char** argv) {
 ```
 
 
-## 1.8 function-like classes , 仿函数
+## 1.8 函数模板
 
 
 
