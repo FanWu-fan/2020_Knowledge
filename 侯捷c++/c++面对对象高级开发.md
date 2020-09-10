@@ -919,12 +919,126 @@ int main(int argc,char** argv) {
 
 ## 2.4 const
 ```c++
-// 成员函数后面放 const，表示 该函数不会改变数据
-A::get() const {
+// 成员函数后面放 const，表示 该函数不会改变该类的内部数据
+class A{
+public:
+    A(int m3_i): m3(m3_i){}
+
+    void get() const{
+        cout<<m3<<endl;
+    }
+
+    void get()  {
+        cout<<"None const: "<<m3<<endl;
+    }
+
+private:
+    int m1,m2;
+    const int m3;
+};
+
+
+int main(int argc,char** argv) {
+    A a(3);
+    a.get();    // None const: 3
+
+    const A b(5);   // 常量对象 只能由 常量成员函数使用
+    b.get();    // 5
 }
 ```
 
  
+## 2.5 operator new , operator delete
+```cpp
+#include <iostream>
+#include <vector>
+#include <bitset>
+#include <string>
+using std::bitset;
+using std::cout,std::endl;
+using std::vector;
+using std::string;
+
+class Foo{
+public:
+    int _id;
+    long _data;
+    string _str;
+
+public:
+    Foo():_id(0)    {cout<<"default ctor.this="<<this<<"id="<<_id<<endl;}
+    Foo(int i):_id(i)   {cout<<"ctor.this="<<this<<"id="<<_id<<endl;}
+
+    //virtual
+    ~Foo()  {cout<<"dtor.this="<<this<<"id="<<_id<<endl;}
+    static void* operator new(size_t size);
+    static void operator delete (void* pdead,size_t size);
+    static void* operator new[](size_t size);
+    static void operator delete[] (void* pdead,size_t size);
+};
+
+void *Foo::operator new(size_t size) {
+    Foo* p = (Foo *)malloc(size);
+    cout<<"use new"<<endl;
+    return p;
+}
+
+void Foo::operator delete(void *pdead, size_t size) {
+    cout<<"use delete"<<endl;
+    free(pdead);
+}
+
+void *Foo::operator new[](size_t size) {
+    Foo *p = (Foo*)malloc(size);
+    cout<<"use new[] size: "<<size<<endl;
+    return p;
+}
+
+void Foo::operator delete[](void *pdead, size_t size) {
+    cout<<"use delete[]"<<endl;
+    free(pdead);
+}
+
+
+int main(int argc,char** argv) {
+    Foo * pf = new Foo;
+    delete pf;
+
+//    use new
+//    default ctor.this=0x5558dda5aeb0id=0
+//    dtor.this=0x5558dda5aeb0id=0
+//    use delete
+//    default ctor.this=0x5558dda5aeb0id=0
+//    dtor.this=0x5558dda5aeb0id=0
+
+//    下面强制采用 globals 的函数
+    Foo* gf = ::new Foo;
+    ::delete gf;
+
+    cout<<sizeof(Foo)<<endl;    //48
+    cout<<sizeof(int)<<" "<<sizeof(long)<<" "<<sizeof(string)<<" "<<sizeof(char *)<<endl;   // 4 8 32 8
+
+    Foo* pArray = new Foo[5];
+    delete []   pArray;
+
+
+//    use new[] size: 248  48*5=240 然后加上8字节，这8字节的count放在顶头，指明后续的数组长度为 5
+//    default ctor.this=0x5636ab11b308id=0
+//    default ctor.this=0x5636ab11b338id=0
+//    default ctor.this=0x5636ab11b368id=0
+//    default ctor.this=0x5636ab11b398id=0
+//    default ctor.this=0x5636ab11b3c8id=0
+//    dtor.this=0x5636ab11b3c8id=0
+//    dtor.this=0x5636ab11b398id=0
+//    dtor.this=0x5636ab11b368id=0
+//    dtor.this=0x5636ab11b338id=0
+//    dtor.this=0x5636ab11b308id=0
+//    use delete[]
+}
+```
+
+
+
 
 
 
