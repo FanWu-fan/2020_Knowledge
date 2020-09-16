@@ -8,6 +8,21 @@
 2. https://en.cppreference.com/w/
 3. https://gcc.gnu.org/
 
+STL有6大部件。
+* 容器   (Containers)
+* 分配器 (Allocator)
+* 算法   (Algorithms)
+* 迭代器 (Iterators)
+* 适配器 (Container Adapters)
+* 仿函数  (Functor Adapters)
+![](picture/2020-09-16-15-00-24.png)
+
+
+> 前闭后开 区间 [ )
+![](picture/2020-09-16-16-02-38.png)
+
+
+
 
 
 
