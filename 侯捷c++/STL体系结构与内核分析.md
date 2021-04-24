@@ -446,7 +446,7 @@ int main(int argc,char** argv)
 ![](picture/2021-04-22-14-36-29.png)
 
 
-## 2.9 分配器
+## 2.9. 分配器
 ```cpp
 #include <list>
 #include <stdexcept>
@@ -581,7 +581,7 @@ int main(int argc, char** argv){
 
 # 3. 泛型编程
 
-## 3.1 OOP vs GP
+## 3.1. OOP vs GP
 **OOP** - Object-Oriented programming
 **GP**  - Generic programming
 
@@ -631,6 +631,53 @@ RandomAccessIterator cut = __unguarded_partition
 但是链表在内存里面不是连续的内存，是采用指针的形式串联起来的。无法采用 *(first+(last-first)/2)的这种形式
 ```
 
-## 3.2 操作符重载以及模板 P10
+## 3.2. 操作符重载以及模板 P10
+* 类模板
+  - 泛化
+```cpp
+template <class type>
+struct __type_traits{}
+```
+
+  - 特化
+```cpp
+template <> struct __type_traits<int>{}
+```
+![](picture/2021-04-23-16-16-39.png)
+
+* Partial Specialization 偏特化
+```cpp
+//两个模板输入
+template <class T, class Alloc=alloc>
+class vector
+{
+    ...
+}
+
+//偏特化，绑定了一个模板
+template<class Alloc>
+class vector<bool, Alloc>
+```
+* 函数模板
+* 成员模板
+
+## 3.3. allocator
+![](picture/2021-04-24-14-03-41.png)
+**目标：** 减少 malloc 的次数，因为每次 malloc 后分配的内存都会带来额外的开销。
+
+第1个链表 #0，负责8个Bit.
+第2个链表 #1，负责16个Bit.
+第3个链表 #2，负责24个Bit.
+....
+第16个链表 #15，负责 168个Bit.
+
+容器的元素大小会被调整到8的倍数。比如说50会被调整到56.那么此时就是某个链表管理。由于容器的大小是固定的，因此不需要每次都向操作系统申请内存。调用malloc会产生额外的cook存储消耗。 
+
+比如链表#3中，cook表示绿色部分，其中申请的整块内存会被切分为多个小部分。
+
+![](picture/2021-04-24-14-35-20.png)
+
+## 3.4 探索 list
+
 
 
